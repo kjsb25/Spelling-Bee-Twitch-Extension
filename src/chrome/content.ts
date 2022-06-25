@@ -1,4 +1,4 @@
-import { ChromeMessage, Sender } from "../types";
+import { ChromeMessage, SBWindow, Sender } from "../types";
 
 type MessageResponse = (response?: any) => void
 
@@ -12,7 +12,19 @@ const messagesFromReactAppListener = (message: ChromeMessage, sender: chrome.run
         sender.id === chrome.runtime.id &&
         message.from === Sender.React &&
         message.message === 'Hello from React') {
-        response('Hello from content.js');
+            let scriptTags= Array.from(document.querySelectorAll('script'))
+            console.log(`Unfiltered: ${scriptTags.length}`)
+            const regex = new RegExp('.*window.gameData.*', 'g');
+            scriptTags.filter((item) => {
+                regex.test(item.outerHTML)
+            })
+            console.log(`Filtered: ${scriptTags.length}`)
+            if(scriptTags.length === 1){
+                response(scriptTags[0].innerHTML)
+            }else{
+                response("Failed")
+            }
+
     }
 
 }
